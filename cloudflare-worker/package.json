@@ -1,0 +1,16 @@
+{
+  "name": "github-mcp-proxy",
+  "version": "1.0.0",
+  "description": "Cloudflare Worker OAuth proxy for github/github-mcp-server",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241205.0",
+    "typescript": "^5.7.2",
+    "wrangler": "^3.103.0"
+  }
+}

@@ -22,7 +22,7 @@ Contiene múltiples secciones, tablas con datos repetitivos, bloques de código 
 
 | Worker | Versión | Estado | Última actualización |
 |---|---|---|---|
-| github-mcp-proxy | v3.1 | activo | 2026-04-05 |
+| github-mcp-proxy | v4.0 | activo | 2026-04-06 |
 | mcp-neo4j-cypher | v2 | activo | 2026-03-28 |
 | shared-github-mcp-server-1 | v9 | deprecado | 2026-04-01 |
 
@@ -42,6 +42,11 @@ Contiene múltiples secciones, tablas con datos repetitivos, bloques de código 
 | POST /github-patch | v2.0 | str_replace |
 | POST /github-append | v2.0 | Append al final |
 | POST /github-search | v3.0 | Buscar en archivo |
+| POST /github-outline | v4.0 | Extraer estructura del documento |
+| POST /github-replace-section | v4.0 | Reemplazar sección por heading |
+| POST /github-json-patch | v4.0 | JSONPath ops en archivos JSON |
+| POST /github-table-upsert | v4.0 | Upsert fila en tabla markdown |
+| POST /github-search-dir | v4.0 | Buscar en directorio completo |
 
 ## Arquitectura
 
@@ -95,3 +100,4 @@ Lista de mejoras identificadas durante la sesión de auditoría del 5 Abr 2026:
 - 2026-04-05: docs/ops/ estructura creada con índice y audit comparativo
 - 2026-04-06: documento de test complejo creado para v4.0
 - 2026-04-06: /github-replace-section ✓ — sección "Estado del sistema" reemplazada completamente
+- 2026-04-06: /github-table-upsert ✓ — github-mcp-proxy v3.1→v4.0 (update), 5 nuevos endpoints (insert)

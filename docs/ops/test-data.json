@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "updated_at": "2026-04-06",
+  "workers": [
+    {
+      "name": "github-mcp-proxy",
+      "version": "3.1.0",
+      "status": "active",
+      "endpoints": 10,
+      "deployed_at": "2026-04-05"
+    },
+    {
+      "name": "mcp-neo4j-cypher",
+      "version": "2.0",
+      "status": "active",
+      "endpoints": 3,
+      "deployed_at": "2026-03-28"
+    },
+    {
+      "name": "shared-github-mcp-server-1",
+      "version": "9",
+      "status": "deprecated",
+      "endpoints": 50,
+      "deployed_at": "2026-04-01"
+    }
+  ],
+  "metrics": {
+    "total_requests_7d": 27494,
+    "total_errors_7d": 244,
+    "error_rate": 0.0089
+  },
+  "config": {
+    "logpush_enabled": false,
+    "traces_enabled": false,
+    "observability_sampling": 1.0
+  }
+}

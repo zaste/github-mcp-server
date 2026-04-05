@@ -9,12 +9,14 @@ Contiene múltiples secciones, tablas con datos repetitivos, bloques de código 
 
 ## Estado del sistema
 
-Estado inicial antes de cualquier test de v4.0.
-Esta sección será reemplazada completamente por `/github-replace-section`.
+> **v4.0 ACTIVO** — reemplazado vía `/github-replace-section` · sección completa sustituida sin tocar el resto
 
-- Worker: github-mcp-proxy v3.1 (pre-deploy v4.0)
+- Worker: github-mcp-proxy **v4.0** (deployado 2026-04-06)
 - Upstream: api.githubcopilot.com/mcp/
-- Estado: pendiente de verificación
+- Estado: ✅ verificado — todos los endpoints v4.0 respondiendo
+- Nuevos endpoints: outline, replace-section, json-patch, table-upsert, search-dir
+- dry_run: ✅ funciona — preview antes de commitear
+- _index.json: ✅ auto-mantenido en background via ctx.waitUntil
 
 ## Inventario de Workers
 
@@ -92,3 +94,4 @@ Lista de mejoras identificadas durante la sesión de auditoría del 5 Abr 2026:
 - 2026-04-05: github-mcp-proxy v3.1 deployado — /github-read-section añadido
 - 2026-04-05: docs/ops/ estructura creada con índice y audit comparativo
 - 2026-04-06: documento de test complejo creado para v4.0
+- 2026-04-06: /github-replace-section ✓ — sección "Estado del sistema" reemplazada completamente

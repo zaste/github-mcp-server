@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "last_updated": "2026-04-06T00:00:00Z",
+  "generated_by": "seed — auto-updates via ctx.waitUntil after every Worker write",
+  "files": {
+    "docs/ops/README.md": {
+      "sha": "52f9c7f5d44372280fe1f66422e7c69aac35d5ab",
+      "size": 3910,
+      "format": "markdown",
+      "lines": 96,
+      "updated_at": "2026-04-05T21:47:26Z",
+      "frontmatter": false,
+      "code_blocks": 3,
+      "tables": [
+        { "line": 24, "header": "| Archivo | Descripción | Última actualización |", "col_count": 3 },
+        { "line": 33, "header": "| Recurso | Valor |", "col_count": 2 },
+        { "line": 42, "header": "| Endpoint | Descripción | Cuándo usar |", "col_count": 3 },
+        { "line": 50, "header": "| Tamaño | Operación recomendada |", "col_count": 2 }
+      ],
+      "sections": [
+        { "level": 1, "title": "Ops Documentation Index", "anchor": "ops-documentation-index", "line_start": 1, "line_end": 20 },
+        { "level": 2, "title": "Documentos activos", "anchor": "documentos-activos", "line_start": 21, "line_end": 30 },
+        { "level": 2, "title": "Stack actual", "anchor": "stack-actual", "line_start": 31, "line_end": 40 },
+        { "level": 2, "title": "Endpoints de edición de documentos", "anchor": "endpoints-de-edicion-de-documentos", "line_start": 41, "line_end": 56 },
+        { "level": 2, "title": "Patrón de frontmatter recomendado", "anchor": "patron-de-frontmatter-recomendado", "line_start": 57, "line_end": 66 },
+        { "level": 2, "title": "Workflow incremental recomendado", "anchor": "workflow-incremental-recomendado", "line_start": 67, "line_end": 96 }
+      ]
+    },
+    "docs/ops/github-mcp-audit-comparativo.md": {
+      "sha": "68fd66a838549ac3a64891048c33dbee12a92bbe",
+      "size": 8549,
+      "format": "markdown",
+      "lines": 196,
+      "updated_at": "2026-04-05T21:47:26Z",
+      "frontmatter": false,
+      "code_blocks": 0,
+      "tables": [
+        { "line": 11, "header": "| Dimensión | Viejo (`shared-github-mcp-server-1`) | Nuevo (`github-mcp-proxy`) |", "col_count": 3 },
+        { "line": 50, "header": "| Tool perdida | Viejo | Nuevo | Impacto real |", "col_count": 4 },
+        { "line": 61, "header": "| Operación | Viejo | Nuevo | Notas |", "col_count": 4 },
+        { "line": 75, "header": "| Recomendación | Estado |", "col_count": 2 },
+        { "line": 105, "header": "| Tool | Viejo | Nuevo |", "col_count": 3 }
+      ],
+      "sections": [
+        { "level": 1, "title": "GitHub MCP — Auditoría Comparativa", "anchor": "github-mcp--auditoria-comparativa", "line_start": 1, "line_end": 8 },
+        { "level": 2, "title": "1. Arquitectura — diferencias estructurales", "anchor": "1-arquitectura--diferencias-estructurales", "line_start": 9, "line_end": 25 },
+        { "level": 2, "title": "2. Inventario de tools — comparación completa", "anchor": "2-inventario-de-tools--comparacion-completa", "line_start": 26, "line_end": 58 },
+        { "level": 2, "title": "3. Test de comportamiento — resultados directos", "anchor": "3-test-de-comportamiento--resultados-directos", "line_start": 59, "line_end": 72 },
+        { "level": 2, "title": "4. Infraestructura — estado actual vs problemas documentados", "anchor": "4-infraestructura--estado-actual-vs-problemas-documentados", "line_start": 73, "line_end": 96 },
+        { "level": 2, "title": "5. Cobertura de las recomendaciones del análisis", "anchor": "5-cobertura-de-las-recomendaciones-del-analisis", "line_start": 97, "line_end": 104 },
+        { "level": 2, "title": "6. Gaps pendientes y workarounds", "anchor": "6-gaps-pendientes-y-workarounds", "line_start": 105, "line_end": 117 },
+        { "level": 2, "title": "7. Veredicto", "anchor": "7-veredicto", "line_start": 118, "line_end": 127 },
+        { "level": 2, "title": "8. Tabla de referencia rápida (selección)", "anchor": "8-tabla-de-referencia-rapida-seleccion", "line_start": 128, "line_end": 196 }
+      ]
+    },
+    "docs/ops/test-complex.md": {
+      "sha": "d1df321e5380660f10ad8ca14c405712c7221ef3",
+      "size": 3561,
+      "format": "markdown",
+      "lines": 82,
+      "updated_at": "2026-04-05T22:58:18Z",
+      "frontmatter": false,
+      "code_blocks": 4,
+      "tables": [
+        { "line": 23, "header": "| Worker | Versión | Estado | Última actualización |", "col_count": 4 },
+        { "line": 30, "header": "| Servicio | Requests | Errores | P99 (ms) |", "col_count": 4 },
+        { "line": 36, "header": "| Endpoint | Versión | Descripción |", "col_count": 3 }
+      ],
+      "sections": [
+        { "level": 1, "title": "Documento de Test Complejo — v4.0", "anchor": "documento-de-test-complejo--v40", "line_start": 1, "line_end": 9 },
+        { "level": 2, "title": "Estado del sistema", "anchor": "estado-del-sistema", "line_start": 11, "line_end": 20 },
+        { "level": 2, "title": "Inventario de Workers", "anchor": "inventario-de-workers", "line_start": 22, "line_end": 28 },
+        { "level": 2, "title": "Métricas de uso (7 días)", "anchor": "metricas-de-uso-7-dias", "line_start": 30, "line_end": 34 },
+        { "level": 2, "title": "Endpoints del Worker", "anchor": "endpoints-del-worker", "line_start": 36, "line_end": 48 },
+        { "level": 2, "title": "Arquitectura", "anchor": "arquitectura", "line_start": 50, "line_end": 56 },
+        { "level": 2, "title": "Configuración de referencia", "anchor": "configuracion-de-referencia", "line_start": 58, "line_end": 70 },
+        { "level": 2, "title": "Gaps pendientes", "anchor": "gaps-pendientes", "line_start": 72, "line_end": 78 },
+        { "level": 2, "title": "Changelog", "anchor": "changelog", "line_start": 80, "line_end": 82 }
+      ]
+    },
+    "docs/ops/test-data.json": {
+      "sha": "203ebe1511786649e85c3947291b00c5dc5be012",
+      "size": 770,
+      "format": "json",
+      "lines": 38,
+      "updated_at": "2026-04-05T22:58:50Z",
+      "top_level_keys": ["version", "updated_at", "workers", "metrics", "config"],
+      "is_array": false,
+      "array_length": null
+    },
+    "docs/ops/test-patch.md": {
+      "sha": "1ac10ef9b81c20540a7fd20af4974bb4177f04cb",
+      "size": 1319,
+      "format": "markdown",
+      "lines": 29,
+      "updated_at": "2026-04-05T21:47:26Z",
+      "frontmatter": false,
+      "code_blocks": 0,
+      "tables": [],
+      "sections": [
+        { "level": 1, "title": "Test doc — /github-patch, /github-append", "anchor": "test-doc--github-patch-github-append", "line_start": 1, "line_end": 8 },
+        { "level": 2, "title": "Estado actual", "anchor": "estado-actual", "line_start": 10, "line_end": 13 },
+        { "level": 2, "title": "Sección A", "anchor": "seccion-a", "line_start": 14, "line_end": 16 },
+        { "level": 2, "title": "Sección B", "anchor": "seccion-b", "line_start": 17, "line_end": 19 },
+        { "level": 2, "title": "Changelog", "anchor": "changelog", "line_start": 21, "line_end": 29 }
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # github-mcp-proxy — Runbook de Infraestructura
 > `yessicavs/github-mcp-server` · Ops@growthxy.com
-> Actualizado: 2026-04-06 · commit `0ea523d9`
+> Actualizado: 2026-04-06 · commit `e4e74758`
 > Mantenedor: @zaste · Worker: github-mcp-proxy v4.0.0
 
 ---
@@ -326,18 +326,31 @@ El par anterior se elimina atómicamente. El refresh token se rota en cada uso.
 
 ## 7. Observabilidad
 
-### Estado actual
+### Estado actual — verificado 2026-04-06
 
-| Métrica | Valor | Período |
+Datos reales de Workers Observability (ventana 2026-04-05 20:00–23:59 UTC):
+
+| Métrica | Valor | Fuente |
 |---|---|---|
-| Total invocaciones | ~45 | 2026-04-05 (día de deploy) |
-| Errores | 0 | mismo período |
-| POST `/mcp` | 14 | mismo período |
-| GET `/mcp` | 5 | mismo período |
-| Token refreshes | 2 | mismo período |
-| `upstream=200` | 12 | mismo período |
-| `upstream=202` | 2 | mismo período |
-| `upstream=405` | 5 | GET /mcp → 405 por diseño |
+| Total invocaciones | ~45 | Observabilidad Workers |
+| Errores | **0** | Observabilidad Workers |
+| POST `/mcp` | 14 | `proxy for=zaste POST upstream=200/202` |
+| GET `/mcp` | 5 | `proxy for=zaste GET upstream=405` (por diseño) |
+| Token refreshes | 2 | `POST /oauth/token` |
+| `upstream=200` | 12 | requests MCP respondidas OK |
+| `upstream=202` | 2 | requests MCP aceptadas async |
+| `upstream=405` | 5 | GET /mcp → upstream no acepta GET |
+| Errores de edición | 0 | endpoints `/github-*` |
+| Commits de edición | 5+ | test-patch.md, test-complex.md, test-data.json |
+
+Consulta exacta usada para verificar:
+
+```
+datasets: ["cloudflare-workers"]
+filters: [{ key: "$metadata.service", operation: "eq", value: "github-mcp-proxy" }]
+groupBys: [{ value: "$metadata.message" }]
+calculations: [{ alias: "hits", operator: "count" }]
+```
 
 ### Logs disponibles (7 días, sin Logpush)
 
@@ -546,3 +559,6 @@ Con `_index.json` esa información está disponible en una sola lectura de
 - **2026-04-05** — v1.1.0: `/.well-known/oauth-protected-resource` (RFC 9728).
 - **2026-04-05** — v1.0.0: Deploy inicial. OAuth completo, proxy MCP funcional.
   Usuario `zaste` conectado. 80+ herramientas activas.
+- **2026-04-06** — runbook.md: documento creado con todas las secciones.
+  Editado via `/github-replace-section` (§7 observabilidad con datos reales),
+  `/github-patch` (frontmatter SHA actualizado), `/github-append` (esta entrada).

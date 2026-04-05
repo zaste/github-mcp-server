@@ -1,22 +1,22 @@
 /**
- * github-mcp-proxy v3.0
+ * github-mcp-proxy v3.1
  *
  * OAuth proxy: Claude.ai web <-> api.githubcopilot.com/mcp/ (80+ tools)
  *
  * Document editing endpoints (bypass MCP transport size limits):
- *   POST /github-read    — read file as plain UTF-8 text (handles >1MB via download_url)
- *   POST /github-patch   — str_replace with CRLF normalization, multi-patch, conflict detection
- *   POST /github-append  — append content to end of file
- *   POST /github-search  — search within file, return matches with context lines
+ *   POST /github-read         — read file as plain UTF-8 text (handles >1MB)
+ *   POST /github-read-section — read lines N-M with optional context expansion
+ *   POST /github-patch        — str_replace: CRLF-safe, multi-patch, conflict detection
+ *   POST /github-append       — append content to end of file
+ *   POST /github-search       — search within file with context lines
  *
- * v3.0 additions over v2.0:
- *   - CRLF auto-normalization (\r\n → \n) before matching in /github-patch
- *   - Large file support (>1MB) via GitHub download_url in all read operations
- *   - Multi-patch mode: patches:[{old_str, new_str}] array → single atomic commit
- *   - /github-search: search query inside any file with context_lines, max_matches, case_sensitive
+ * v3.1 over v3.0:
+ *   + POST /github-read-section: read lines start_line..end_line with context_lines
+ *     expansion. Returns sha directly usable in /github-patch. Solves context
+ *     window overflow for large documents — read only the section you need.
  *
  * Auth for /github-* endpoints:
- *   Authorization: Bearer <oauth_access_token>    (from OAuth flow, via KV)
+ *   Authorization: Bearer <oauth_access_token>     (from OAuth flow, via KV)
  *   Authorization: Bearer ghp_... | github_pat_... (direct GitHub PAT)
  */
 
@@ -25,9 +25,9 @@ export interface Env {
   WORKER_URL: string;
 }
 
-// ── UTF-8 safe base64 ──────────────────────────────────────────────────────
+// ── UTF-8 safe base64 ────────────────────────────────────────────────────────
 
-/** Decode base64 → UTF-8. Strips GitHub's 60-char line wrapping first. */
+/** Decode base64 → UTF-8. Strips GitHub's 60-char line wrapping. */
 function b64d(b64: string): string {
   const bin = atob(b64.replace(/\n/g, ''));
   const bytes = new Uint8Array(bin.length);
@@ -35,7 +35,7 @@ function b64d(b64: string): string {
   return new TextDecoder('utf-8').decode(bytes);
 }
 
-/** Encode UTF-8 string → base64. Processes in 8KB chunks (avoids call-stack overflow). */
+/** Encode UTF-8 string → base64. 8KB chunks (avoids call-stack overflow). */
 function b64e(str: string): string {
   const bytes = new TextEncoder().encode(str);
   let bin = '';
@@ -45,7 +45,7 @@ function b64e(str: string): string {
   return btoa(bin);
 }
 
-// ── Auth ────────────────────────────────────────────────────────────────────
+// ── Auth ─────────────────────────────────────────────────────────────────────
 
 interface TokenData { github_pat: string; github_login?: string; client_id?: string; }
 
@@ -58,7 +58,7 @@ async function resolveAuth(req: Request, env: Env): Promise<TokenData | null> {
   return await env.OAUTH_KV.get(`token:${tok}`, 'json') as TokenData | null;
 }
 
-/** Standard GitHub REST API request headers. */
+/** Standard GitHub REST API headers. */
 function ghH(pat: string): Record<string, string> {
   return {
     Authorization: `Bearer ${pat}`,
@@ -69,30 +69,20 @@ function ghH(pat: string): Record<string, string> {
   };
 }
 
-// ── Content fetching — handles <1MB (inline base64) and >1MB (download_url) ──
+// ── Content fetching ─ handles <1MB (inline base64) and >1MB (download_url) ──
 
 interface GitHubFileData {
-  content: string;
-  sha: string;
-  size: number;
-  path: string;
-  name: string;
-  html_url: string;
-  download_url: string | null;
+  content: string; sha: string; size: number;
+  path: string; name: string; html_url: string; download_url: string | null;
 }
 
 /**
- * Fetches file content as UTF-8 string.
- * - Files ≤1MB: GitHub API returns content as base64 inline → decode with b64d
- * - Files >1MB: GitHub API returns content="" + download_url → fetch raw URL
- * - Binary files: no content and no download_url → throws
+ * Fetch file content as UTF-8 string.
+ * GitHub returns base64 inline for files ≤1MB; for >1MB, content="" + download_url.
  */
 async function fetchContent(fd: GitHubFileData, pat: string): Promise<string> {
-  if (fd.content) {
-    return b64d(fd.content);
-  }
+  if (fd.content) return b64d(fd.content);
   if (fd.download_url) {
-    // File >1MB — content is empty, must fetch raw URL
     const r = await fetch(fd.download_url, {
       headers: { Authorization: `Bearer ${pat}`, 'User-Agent': 'github-mcp-proxy/1.0' },
     });
@@ -102,13 +92,9 @@ async function fetchContent(fd: GitHubFileData, pat: string): Promise<string> {
   throw new Error('File appears to be binary (no inline content or download_url)');
 }
 
-// ── CRLF normalization ────────────────────────────────────────────────────────
+// ── CRLF normalization ───────────────────────────────────────────────────────
 
-/**
- * Normalizes \r\n → \n for consistent matching.
- * Returns the normalized content and whether normalization was applied.
- * Writing the normalized content back converts the file to LF (correct for markdown).
- */
+/** Normalize \r\n → \n for consistent matching. Markdown files should use LF. */
 function normCRLF(str: string): { content: string; wasCRLF: boolean } {
   const wasCRLF = str.includes('\r\n');
   return { content: wasCRLF ? str.replace(/\r\n/g, '\n') : str, wasCRLF };
@@ -130,21 +116,17 @@ interface Patch { old_str: string; new_str: string; }
 interface PatchResult { patch_index: number; replaced_at: { line: number; col: number }; delta: number; }
 
 /**
- * Validates and applies an array of patches sequentially.
- * Each patch is validated against the content AFTER previous patches were applied.
- * If ANY patch fails, the entire operation is aborted (no partial writes).
+ * Validate and apply patches sequentially.
+ * Each patch is validated against content AFTER previous patches.
+ * Aborts entirely on any failure — no partial writes.
  */
 function applyPatches(content: string, patches: Patch[]): { newContent: string; results: PatchResult[] } {
   let cur = content;
   const results: PatchResult[] = [];
-
   for (let i = 0; i < patches.length; i++) {
     const { old_str, new_str } = patches[i];
-
     if (!old_str) throw { patchIndex: i, error: 'invalid_request', error_description: `patch[${i}].old_str cannot be empty` };
     if (new_str === undefined || new_str === null) throw { patchIndex: i, error: 'invalid_request', error_description: `patch[${i}].new_str is required` };
-
-    // Find all occurrences in current content (post previous patches)
     const occ: Array<{ idx: number; line: number; col: number; context: string }> = [];
     let si = 0;
     while (true) {
@@ -154,22 +136,18 @@ function applyPatches(content: string, patches: Patch[]): { newContent: string; 
       occ.push({ idx: fi, line: pos.line, col: pos.col, context: surCtx(cur, fi, old_str.length) });
       si = fi + old_str.length;
     }
-
     if (occ.length === 0)
-      throw { patchIndex: i, error: 'not_found', error_description: `patch[${i}].old_str not found (after ${i} previous patches applied)`, hint: 'Use /github-read to inspect current content; check whitespace and encoding' };
-
+      throw { patchIndex: i, error: 'not_found', error_description: `patch[${i}].old_str not found (after ${i} previous patches)`, hint: 'Use /github-read to inspect current content' };
     if (occ.length > 1)
       throw { patchIndex: i, error: 'ambiguous', error_description: `patch[${i}].old_str found ${occ.length} times — must be unique`, count: occ.length, occurrences: occ.map(o => ({ line: o.line, col: o.col, context: o.context })), hint: 'Add more surrounding context to make it unique' };
-
     const m = occ[0];
     cur = cur.substring(0, m.idx) + new_str + cur.substring(m.idx + old_str.length);
     results.push({ patch_index: i, replaced_at: { line: m.line, col: m.col }, delta: new_str.length - old_str.length });
   }
-
   return { newContent: cur, results };
 }
 
-// ── Response helpers ──────────────────────────────────────────────────────────
+// ── Response helpers ─────────────────────────────────────────────────────────
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -180,7 +158,7 @@ const CORS = {
 const j = (body: unknown, status = 200, extra?: Record<string, string>) =>
   Response.json(body, { status, headers: extra ? { ...CORS, ...extra } : CORS });
 
-// ═══════════════════════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════════════════════════
 export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
@@ -206,17 +184,17 @@ export default {
       return j({ ...c, registration_access_token: rnd(32) }, 201);
     }
 
-    // Authorization form (GET)
+    // Authorization form
     if (p === '/oauth/authorize' && req.method === 'GET') {
       const ci = url.searchParams.get('client_id') || '', ru = url.searchParams.get('redirect_uri') || '', st = url.searchParams.get('state') || '', cc = url.searchParams.get('code_challenge') || '', cm = url.searchParams.get('code_challenge_method') || 'S256';
       if (!ci || !ru) return new Response('Missing client_id or redirect_uri', { status: 400 });
       const cl = await env.OAUTH_KV.get(`client:${ci}`, 'json');
       if (!cl) return new Response(`Unknown client_id: ${ci}`, { status: 400 });
-      const html = ['<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Connect GitHub</title>', '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#f6f8fa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}.card{background:#fff;border:1px solid #d0d7de;border-radius:12px;padding:2rem;width:100%;max-width:440px}h1{font-size:1.25rem;color:#24292f;margin:.5rem 0 .5rem}p{font-size:.875rem;color:#57606a;line-height:1.5;margin-bottom:1rem}code{background:#f6f8fa;padding:.1em .3em;border-radius:4px;font-size:.85em}label{display:block;font-size:.875rem;font-weight:600;color:#24292f;margin-bottom:.375rem}input[type=password]{width:100%;padding:.5rem .75rem;border:1px solid #d0d7de;border-radius:6px;font-size:.875rem;font-family:monospace;outline:none}input[type=password]:focus{border-color:#0969da;box-shadow:0 0 0 3px rgba(9,105,218,.15)}.hint{font-size:.75rem;color:#57606a;margin:.375rem 0 1.25rem}.hint a{color:#0969da;text-decoration:none}button{width:100%;padding:.625rem;background:#1f883d;color:#fff;border:none;border-radius:6px;font-size:.9375rem;font-weight:600;cursor:pointer}button:hover{background:#1a7f37}</style></head>', '<body><div class=card><div style="font-size:2.5rem;margin-bottom:.75rem">&#x26A1;</div><h1>Connect GitHub to Claude</h1><p>Enter your GitHub PAT.<br>Required: <code>repo</code>, <code>read:org</code>, <code>notifications</code>.</p>', `<form method=POST action=/oauth/authorize><input type=hidden name=client_id value="${ci}"><input type=hidden name=redirect_uri value="${ru}"><input type=hidden name=state value="${st}"><input type=hidden name=code_challenge value="${cc}"><input type=hidden name=code_challenge_method value="${cm}">`, '<label for=pat>Personal Access Token</label><input type=password id=pat name=pat placeholder="github_pat_... or ghp_..." required autofocus>', '<p class=hint><a href=https://github.com/settings/personal-access-tokens/new target=_blank rel=noopener>Create a fine-grained token</a> with required scopes.</p>', '<button type=submit>Authorize Claude &#x2192;</button></form>', '<p style="margin-top:1rem;font-size:.75rem;color:#57606a;text-align:center">Powered by <a href=https://github.com/github/github-mcp-server style=color:#0969da>github/github-mcp-server</a> &middot; 80+ tools</p></div></body></html>'].join('');
+      const html = ['<!DOCTYPE html><html lang=en><head><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Connect GitHub</title>', '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;background:#f6f8fa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem}.card{background:#fff;border:1px solid #d0d7de;border-radius:12px;padding:2rem;width:100%;max-width:440px}h1{font-size:1.25rem;color:#24292f;margin:.5rem 0 .5rem}p{font-size:.875rem;color:#57606a;line-height:1.5;margin-bottom:1rem}code{background:#f6f8fa;padding:.1em .3em;border-radius:4px;font-size:.85em}label{display:block;font-size:.875rem;font-weight:600;color:#24292f;margin-bottom:.375rem}input[type=password]{width:100%;padding:.5rem .75rem;border:1px solid #d0d7de;border-radius:6px;font-size:.875rem;font-family:monospace;outline:none}input[type=password]:focus{border-color:#0969da;box-shadow:0 0 0 3px rgba(9,105,218,.15)}.hint{font-size:.75rem;color:#57606a;margin:.375rem 0 1.25rem}.hint a{color:#0969da;text-decoration:none}button{width:100%;padding:.625rem;background:#1f883d;color:#fff;border:none;border-radius:6px;font-size:.9375rem;font-weight:600;cursor:pointer}button:hover{background:#1a7f37}</style></head>', `<body><div class=card><div style="font-size:2.5rem;margin-bottom:.75rem">&#x26A1;</div><h1>Connect GitHub to Claude</h1><p>Enter your GitHub PAT.<br>Required: <code>repo</code>, <code>read:org</code>, <code>notifications</code>.</p><form method=POST action=/oauth/authorize><input type=hidden name=client_id value="${ci}"><input type=hidden name=redirect_uri value="${ru}"><input type=hidden name=state value="${st}"><input type=hidden name=code_challenge value="${cc}"><input type=hidden name=code_challenge_method value="${cm}"><label for=pat>Personal Access Token</label><input type=password id=pat name=pat placeholder="github_pat_... or ghp_..." required autofocus><p class=hint><a href=https://github.com/settings/personal-access-tokens/new target=_blank rel=noopener>Create a fine-grained token</a> with required scopes.</p><button type=submit>Authorize Claude &#x2192;</button></form><p style="margin-top:1rem;font-size:.75rem;color:#57606a;text-align:center">Powered by <a href=https://github.com/github/github-mcp-server style=color:#0969da>github/github-mcp-server</a> &middot; 80+ tools</p></div></body></html>`].join('');
       return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' } });
     }
 
-    // Authorization (POST)
+    // Authorization POST
     if (p === '/oauth/authorize' && req.method === 'POST') {
       const form = await req.formData();
       const ci = String(form.get('client_id') || ''), ru = String(form.get('redirect_uri') || ''), st = String(form.get('state') || ''), cc = String(form.get('code_challenge') || ''), cm = String(form.get('code_challenge_method') || 'S256'), pat = String(form.get('pat') || '').trim();
@@ -261,8 +239,8 @@ export default {
       return j({ access_token: at, token_type: 'Bearer', expires_in: 28800, refresh_token: nrt, scope: 'repo read:org notifications workflow' });
     }
 
-    // ── Document editing endpoints ─────────────────────────────────────────
-    if ((p === '/github-read' || p === '/github-patch' || p === '/github-append' || p === '/github-search') && req.method === 'POST') {
+    // ── Document editing endpoints ────────────────────────────────────────────
+    if ((p === '/github-read' || p === '/github-read-section' || p === '/github-patch' || p === '/github-append' || p === '/github-search') && req.method === 'POST') {
 
       const td = await resolveAuth(req, env);
       if (!td) return j({ error: 'unauthorized', error_description: 'Bearer token required (OAuth access_token or GitHub PAT)' }, 401);
@@ -272,7 +250,6 @@ export default {
       const filePath = body.path as string;
       if (!owner || !repo || !filePath) return j({ error: 'invalid_request', error_description: 'Required: owner, repo, path' }, 400);
 
-      // Fetch file metadata
       const ref = branch ? `?ref=${encodeURIComponent(branch)}` : '';
       const fileRes = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}${ref}`, { headers: ghH(td.github_pat) });
       if (!fileRes.ok) {
@@ -282,7 +259,6 @@ export default {
       const fd = await fileRes.json() as GitHubFileData;
       if (Array.isArray(fd)) return j({ error: 'invalid_request', error_description: `${filePath} is a directory, not a file` }, 422);
 
-      // Fetch content — handles <1MB and >1MB
       let rawContent: string;
       try { rawContent = await fetchContent(fd, td.github_pat); }
       catch (e) { return j({ error: 'invalid_request', error_description: (e as Error).message, size_bytes: fd.size, is_large_file: fd.size > 1048576 }, 422); }
@@ -290,33 +266,44 @@ export default {
       const sha = fd.sha;
       const isLarge = fd.size > 1048576;
 
-      // /github-read
+      // /github-read — full file as plain text
       if (p === '/github-read') {
         console.log(`github-read ${owner}/${repo}/${filePath} size=${rawContent.length}${isLarge ? ' (large-file)' : ''}`);
         return j({ content: rawContent, sha, size: fd.size, path: fd.path, name: fd.name, html_url: fd.html_url, lines: rawContent.split('\n').length, chars: rawContent.length, is_large_file: isLarge });
       }
 
-      // /github-patch
+      // /github-read-section — read lines start_line..end_line with context expansion
+      if (p === '/github-read-section') {
+        const { content: norm } = normCRLF(rawContent);
+        const lines = norm.split('\n');
+        const total = lines.length;
+        const sl = Math.max(1, parseInt(String(body.start_line ?? 1)));
+        const el = body.end_line != null ? Math.min(total, parseInt(String(body.end_line))) : total;
+        const cx = Math.min(Math.max(parseInt(String(body.context_lines ?? 0)), 0), 50);
+        if (sl > total) return j({ error: 'invalid_request', error_description: `start_line (${sl}) exceeds file length (${total} lines)`, total_lines: total }, 422);
+        if (sl > el) return j({ error: 'invalid_request', error_description: `start_line (${sl}) must be ≤ end_line (${el})` }, 422);
+        const as = Math.max(1, sl - cx);
+        const ae = Math.min(total, el + cx);
+        const section = lines.slice(as - 1, ae).join('\n');
+        console.log(`github-read-section ${owner}/${repo}/${filePath} lines=${as}-${ae} of ${total}`);
+        return j({ content: section, sha, size: fd.size, path: fd.path, name: fd.name, html_url: fd.html_url, start_line: as, end_line: ae, requested_start: sl, requested_end: el, context_lines: cx, total_lines: total, section_lines: ae - as + 1, section_chars: section.length, is_large_file: isLarge });
+      }
+
+      // /github-patch — str_replace, CRLF-safe, single and multi-patch
       if (p === '/github-patch') {
         const { wasCRLF, content: current } = normCRLF(rawContent);
-
-        // Build patches array — supports both single {old_str, new_str} and multi {patches: [...]}
         let patches: Patch[];
         if (Array.isArray((body as Record<string, unknown>).patches)) {
           patches = ((body as Record<string, unknown>).patches as Array<Record<string, string>>).map(pt => ({ old_str: pt.old_str, new_str: pt.new_str }));
           if (patches.length === 0) return j({ error: 'invalid_request', error_description: 'patches array cannot be empty' }, 400);
         } else {
           const { old_str, new_str } = body as { old_str?: string; new_str?: string };
-          if (old_str === undefined || old_str === null) return j({ error: 'invalid_request', error_description: 'Required: old_str (or patches array for multi-patch)' }, 400);
+          if (old_str === undefined || old_str === null) return j({ error: 'invalid_request', error_description: 'Required: old_str (or patches array)' }, 400);
           if (new_str === undefined || new_str === null) return j({ error: 'invalid_request', error_description: 'Required: new_str' }, 400);
           if (old_str === '') return j({ error: 'invalid_request', error_description: 'old_str cannot be empty — use /github-append for end-of-file insertions' }, 400);
           patches = [{ old_str, new_str }];
         }
-
-        // Normalize CRLF in user-provided old_str values
         patches = patches.map(pt => ({ old_str: pt.old_str.replace(/\r\n/g, '\n'), new_str: pt.new_str }));
-
-        // Apply all patches with full validation — aborts entirely if any fails
         let patchResult: { newContent: string; results: PatchResult[] };
         try { patchResult = applyPatches(current, patches); }
         catch (e) {
@@ -324,7 +311,6 @@ export default {
           return j({ error: 'patch_failed', error_description: String(e) }, 500);
         }
         const { newContent, results } = patchResult;
-
         const commitMsg = (body.message as string) || (patches.length === 1 ? `docs: patch ${filePath.split('/').pop()}` : `docs: multi-patch ${filePath.split('/').pop()} (${patches.length} changes)`);
         const putBody = { message: commitMsg, content: b64e(newContent), sha, ...(branch ? { branch } : {}) };
         const pr = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`, { method: 'PUT', headers: ghH(td.github_pat), body: JSON.stringify(putBody) });
@@ -338,7 +324,7 @@ export default {
         return j({ success: true, path: filePath, sha_before: sha, sha_after: pd.content.sha, commit: pd.commit.sha, commit_url: pd.commit.html_url, patches_applied: results, chars_before: rawContent.length, chars_after: newContent.length, total_delta: results.reduce((s, r) => s + r.delta, 0), crlf_normalized: wasCRLF });
       }
 
-      // /github-append
+      // /github-append — append to end of file
       if (p === '/github-append') {
         const ac = body.content as string;
         if (!ac) return j({ error: 'invalid_request', error_description: 'Required: content' }, 400);
@@ -353,31 +339,31 @@ export default {
         return j({ success: true, path: filePath, sha_before: sha, sha_after: pd.content.sha, commit: pd.commit.sha, commit_url: pd.commit.html_url, chars_added: ac.length + sep.length, chars_before: rawContent.length, chars_after: newContent.length });
       }
 
-      // /github-search
+      // /github-search — search within file
       if (p === '/github-search') {
         const query = body.query as string;
         if (!query) return j({ error: 'invalid_request', error_description: 'Required: query' }, 400);
-        const contextLines = Math.min(Math.max(parseInt(String(body.context_lines ?? 3)), 0), 20);
-        const maxMatches = Math.min(Math.max(parseInt(String(body.max_matches ?? 50)), 1), 200);
-        const caseSensitive = body.case_sensitive === true;
-        const { content: normalized } = normCRLF(rawContent);
-        const lines = normalized.split('\n');
-        const searchQuery = caseSensitive ? query : query.toLowerCase();
+        const cx = Math.min(Math.max(parseInt(String(body.context_lines ?? 3)), 0), 20);
+        const mx = Math.min(Math.max(parseInt(String(body.max_matches ?? 50)), 1), 200);
+        const cs = body.case_sensitive === true;
+        const { content: norm } = normCRLF(rawContent);
+        const lines = norm.split('\n');
+        const sq = cs ? query : query.toLowerCase();
         const matches: Array<{ line: number; col: number; text: string; context_before: string[]; context_after: string[] }> = [];
-        for (let i = 0; i < lines.length && matches.length < maxMatches; i++) {
-          const lineText = caseSensitive ? lines[i] : lines[i].toLowerCase();
-          let col = lineText.indexOf(searchQuery);
-          while (col !== -1 && matches.length < maxMatches) {
-            matches.push({ line: i + 1, col: col + 1, text: lines[i], context_before: lines.slice(Math.max(0, i - contextLines), i), context_after: lines.slice(i + 1, Math.min(lines.length, i + 1 + contextLines)) });
-            col = lineText.indexOf(searchQuery, col + searchQuery.length);
+        for (let i = 0; i < lines.length && matches.length < mx; i++) {
+          const lt = cs ? lines[i] : lines[i].toLowerCase();
+          let col = lt.indexOf(sq);
+          while (col !== -1 && matches.length < mx) {
+            matches.push({ line: i + 1, col: col + 1, text: lines[i], context_before: lines.slice(Math.max(0, i - cx), i), context_after: lines.slice(i + 1, Math.min(lines.length, i + 1 + cx)) });
+            col = lt.indexOf(sq, col + sq.length);
           }
         }
         console.log(`github-search ${owner}/${repo}/${filePath} q=${query} matches=${matches.length}`);
-        return j({ query, case_sensitive: caseSensitive, path: fd.path, sha, size: fd.size, file_lines: lines.length, file_chars: normalized.length, total_matches: matches.length, truncated: matches.length >= maxMatches, matches });
+        return j({ query, case_sensitive: cs, path: fd.path, sha, size: fd.size, file_lines: lines.length, file_chars: norm.length, total_matches: matches.length, truncated: matches.length >= mx, matches });
       }
     }
 
-    // ── MCP proxy -> api.githubcopilot.com/mcp/ ────────────────────────────
+    // ── MCP proxy → api.githubcopilot.com/mcp/ ───────────────────────────────
     if (p === '/mcp' || p.startsWith('/mcp/')) {
       const ah = req.headers.get('Authorization');
       if (!ah || !ah.startsWith('Bearer ')) return j({ error: 'unauthorized' }, 401);
@@ -399,13 +385,13 @@ export default {
 
     // Root
     if (p === '/' || p === '')
-      return j({ name: 'github-mcp-proxy', version: '3.0.0', mcp: `${env.WORKER_URL}/mcp`, upstream: 'https://api.githubcopilot.com/mcp/', tools: '80+', editing: { 'POST /github-read': 'Read file as UTF-8 — handles >1MB via download_url', 'POST /github-patch': 'str_replace — CRLF-safe, multi-patch array, conflict detection', 'POST /github-append': 'Append to end of file', 'POST /github-search': 'Search within file — context_lines, max_matches, case_sensitive', auth: 'Bearer <oauth_token | github_pat_* | ghp_*>' } });
+      return j({ name: 'github-mcp-proxy', version: '3.1.0', mcp: `${env.WORKER_URL}/mcp`, upstream: 'https://api.githubcopilot.com/mcp/', tools: '80+', editing: { endpoints: ['POST /github-read', 'POST /github-read-section', 'POST /github-patch', 'POST /github-append', 'POST /github-search'], auth: 'Bearer <oauth_token | github_pat_* | ghp_*>' } });
 
     return new Response('Not found', { status: 404, headers: CORS });
   },
 };
 
-// ── OAuth helpers (used throughout) ─────────────────────────────────────────
+// ── OAuth helpers ─────────────────────────────────────────────────────────────
 
 function rnd(n: number): string {
   const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';

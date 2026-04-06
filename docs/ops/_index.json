@@ -1,13 +1,19 @@
 {
   "version": "1.1",
-  "last_updated": "2026-04-06T10:00:00Z",
+  "last_updated": "2026-04-06T17:08:22.958Z",
   "generated_by": "manual sync after stress test session — auto-updates via ctx.waitUntil after Worker writes",
   "stress_test_summary": {
     "date": "2026-04-06",
     "tests_run": 8,
     "bugs_found": 1,
     "bug_fixed": "tokenizePath v4.0.1 — [?(@.field=='val')].subkey bracket-aware tokenizer",
-    "commits_this_session": ["0ea523d9", "e4e74758", "0570b5d7", "30859520", "6aa62afe"],
+    "commits_this_session": [
+      "0ea523d9",
+      "e4e74758",
+      "0570b5d7",
+      "30859520",
+      "6aa62afe"
+    ],
     "observability_7d": {
       "total_invocations": 91,
       "errors": 0,
@@ -27,19 +33,77 @@
       "frontmatter": false,
       "code_blocks": 3,
       "tables": [
-        { "line": 24, "header": "| Archivo | Descripción | Última actualización |", "col_count": 3 },
-        { "line": 34, "header": "| Recurso | Valor |", "col_count": 2 },
-        { "line": 44, "header": "| Endpoint | Versión | Descripción | Cuándo usar |", "col_count": 4 },
-        { "line": 55, "header": "| Tamaño | Operación recomendada |", "col_count": 2 }
+        {
+          "line": 24,
+          "header": "| Archivo | Descripción | Última actualización |",
+          "col_count": 3
+        },
+        {
+          "line": 34,
+          "header": "| Recurso | Valor |",
+          "col_count": 2
+        },
+        {
+          "line": 44,
+          "header": "| Endpoint | Versión | Descripción | Cuándo usar |",
+          "col_count": 4
+        },
+        {
+          "line": 55,
+          "header": "| Tamaño | Operación recomendada |",
+          "col_count": 2
+        }
       ],
       "sections": [
-        { "level": 1, "title": "Ops Documentation Index", "anchor": "ops-documentation-index", "line_start": 1, "line_end": 22 },
-        { "level": 2, "title": "Documentos activos", "anchor": "documentos-activos", "line_start": 23, "line_end": 32 },
-        { "level": 2, "title": "Stack actual", "anchor": "stack-actual", "line_start": 33, "line_end": 42 },
-        { "level": 2, "title": "Endpoints de edición de documentos", "anchor": "endpoints-de-edicion-de-documentos", "line_start": 43, "line_end": 63 },
-        { "level": 2, "title": "_index.json — índice estructural", "anchor": "indexjson--indice-estructural", "line_start": 64, "line_end": 82 },
-        { "level": 2, "title": "Patrón de frontmatter recomendado", "anchor": "patron-de-frontmatter-recomendado", "line_start": 83, "line_end": 92 },
-        { "level": 2, "title": "Workflow incremental recomendado (v4.0)", "anchor": "workflow-incremental-recomendado-v40", "line_start": 93, "line_end": 115 }
+        {
+          "level": 1,
+          "title": "Ops Documentation Index",
+          "anchor": "ops-documentation-index",
+          "line_start": 1,
+          "line_end": 22
+        },
+        {
+          "level": 2,
+          "title": "Documentos activos",
+          "anchor": "documentos-activos",
+          "line_start": 23,
+          "line_end": 32
+        },
+        {
+          "level": 2,
+          "title": "Stack actual",
+          "anchor": "stack-actual",
+          "line_start": 33,
+          "line_end": 42
+        },
+        {
+          "level": 2,
+          "title": "Endpoints de edición de documentos",
+          "anchor": "endpoints-de-edicion-de-documentos",
+          "line_start": 43,
+          "line_end": 63
+        },
+        {
+          "level": 2,
+          "title": "_index.json — índice estructural",
+          "anchor": "indexjson--indice-estructural",
+          "line_start": 64,
+          "line_end": 82
+        },
+        {
+          "level": 2,
+          "title": "Patrón de frontmatter recomendado",
+          "anchor": "patron-de-frontmatter-recomendado",
+          "line_start": 83,
+          "line_end": 92
+        },
+        {
+          "level": 2,
+          "title": "Workflow incremental recomendado (v4.0)",
+          "anchor": "workflow-incremental-recomendado-v40",
+          "line_start": 93,
+          "line_end": 115
+        }
       ]
     },
     "docs/ops/github-mcp-audit-comparativo.md": {
@@ -51,22 +115,96 @@
       "frontmatter": false,
       "code_blocks": 0,
       "tables": [
-        { "line": 11, "header": "| Dimensión | Viejo (`shared-github-mcp-server-1`) | Nuevo (`github-mcp-proxy`) |", "col_count": 3 },
-        { "line": 50, "header": "| Tool perdida | Viejo | Nuevo | Impacto real |", "col_count": 4 },
-        { "line": 61, "header": "| Operación | Viejo | Nuevo | Notas |", "col_count": 4 },
-        { "line": 75, "header": "| Recomendación | Estado |", "col_count": 2 },
-        { "line": 105, "header": "| Tool | Viejo | Nuevo |", "col_count": 3 }
+        {
+          "line": 11,
+          "header": "| Dimensión | Viejo (`shared-github-mcp-server-1`) | Nuevo (`github-mcp-proxy`) |",
+          "col_count": 3
+        },
+        {
+          "line": 50,
+          "header": "| Tool perdida | Viejo | Nuevo | Impacto real |",
+          "col_count": 4
+        },
+        {
+          "line": 61,
+          "header": "| Operación | Viejo | Nuevo | Notas |",
+          "col_count": 4
+        },
+        {
+          "line": 75,
+          "header": "| Recomendación | Estado |",
+          "col_count": 2
+        },
+        {
+          "line": 105,
+          "header": "| Tool | Viejo | Nuevo |",
+          "col_count": 3
+        }
       ],
       "sections": [
-        { "level": 1, "title": "GitHub MCP — Auditoría Comparativa", "anchor": "github-mcp--auditoria-comparativa", "line_start": 1, "line_end": 8 },
-        { "level": 2, "title": "1. Arquitectura — diferencias estructurales", "anchor": "1-arquitectura--diferencias-estructurales", "line_start": 9, "line_end": 25 },
-        { "level": 2, "title": "2. Inventario de tools — comparación completa", "anchor": "2-inventario-de-tools--comparacion-completa", "line_start": 26, "line_end": 58 },
-        { "level": 2, "title": "3. Test de comportamiento — resultados directos", "anchor": "3-test-de-comportamiento--resultados-directos", "line_start": 59, "line_end": 72 },
-        { "level": 2, "title": "4. Infraestructura — estado actual vs problemas documentados", "anchor": "4-infraestructura--estado-actual-vs-problemas-documentados", "line_start": 73, "line_end": 96 },
-        { "level": 2, "title": "5. Cobertura de las recomendaciones del análisis", "anchor": "5-cobertura-de-las-recomendaciones-del-analisis", "line_start": 97, "line_end": 104 },
-        { "level": 2, "title": "6. Gaps pendientes y workarounds", "anchor": "6-gaps-pendientes-y-workarounds", "line_start": 105, "line_end": 117 },
-        { "level": 2, "title": "7. Veredicto", "anchor": "7-veredicto", "line_start": 118, "line_end": 127 },
-        { "level": 2, "title": "8. Tabla de referencia rápida (selección)", "anchor": "8-tabla-de-referencia-rapida-seleccion", "line_start": 128, "line_end": 196 }
+        {
+          "level": 1,
+          "title": "GitHub MCP — Auditoría Comparativa",
+          "anchor": "github-mcp--auditoria-comparativa",
+          "line_start": 1,
+          "line_end": 8
+        },
+        {
+          "level": 2,
+          "title": "1. Arquitectura — diferencias estructurales",
+          "anchor": "1-arquitectura--diferencias-estructurales",
+          "line_start": 9,
+          "line_end": 25
+        },
+        {
+          "level": 2,
+          "title": "2. Inventario de tools — comparación completa",
+          "anchor": "2-inventario-de-tools--comparacion-completa",
+          "line_start": 26,
+          "line_end": 58
+        },
+        {
+          "level": 2,
+          "title": "3. Test de comportamiento — resultados directos",
+          "anchor": "3-test-de-comportamiento--resultados-directos",
+          "line_start": 59,
+          "line_end": 72
+        },
+        {
+          "level": 2,
+          "title": "4. Infraestructura — estado actual vs problemas documentados",
+          "anchor": "4-infraestructura--estado-actual-vs-problemas-documentados",
+          "line_start": 73,
+          "line_end": 96
+        },
+        {
+          "level": 2,
+          "title": "5. Cobertura de las recomendaciones del análisis",
+          "anchor": "5-cobertura-de-las-recomendaciones-del-analisis",
+          "line_start": 97,
+          "line_end": 104
+        },
+        {
+          "level": 2,
+          "title": "6. Gaps pendientes y workarounds",
+          "anchor": "6-gaps-pendientes-y-workarounds",
+          "line_start": 105,
+          "line_end": 117
+        },
+        {
+          "level": 2,
+          "title": "7. Veredicto",
+          "anchor": "7-veredicto",
+          "line_start": 118,
+          "line_end": 127
+        },
+        {
+          "level": 2,
+          "title": "8. Tabla de referencia rápida (selección)",
+          "anchor": "8-tabla-de-referencia-rapida-seleccion",
+          "line_start": 128,
+          "line_end": 196
+        }
       ]
     },
     "docs/ops/runbook.md": {
@@ -78,27 +216,129 @@
       "frontmatter": false,
       "code_blocks": 12,
       "tables": [
-        { "line": 52, "header": "| Recurso | Nombre | ID / URL |", "col_count": 3 },
-        { "line": 62, "header": "| Versión | Fecha | etag | Cambios principales |", "col_count": 4 },
-        { "line": 79, "header": "| Herramienta perdida | Impacto | Workaround |", "col_count": 3 },
-        { "line": 99, "header": "| Endpoint | Versión | Propósito | Cuándo usar |", "col_count": 4 },
-        { "line": 142, "header": "| Error | Status | Causa | Solución |", "col_count": 4 },
-        { "line": 187, "header": "| Métrica | Valor | Fuente |", "col_count": 3 }
+        {
+          "line": 52,
+          "header": "| Recurso | Nombre | ID / URL |",
+          "col_count": 3
+        },
+        {
+          "line": 62,
+          "header": "| Versión | Fecha | etag | Cambios principales |",
+          "col_count": 4
+        },
+        {
+          "line": 79,
+          "header": "| Herramienta perdida | Impacto | Workaround |",
+          "col_count": 3
+        },
+        {
+          "line": 99,
+          "header": "| Endpoint | Versión | Propósito | Cuándo usar |",
+          "col_count": 4
+        },
+        {
+          "line": 142,
+          "header": "| Error | Status | Causa | Solución |",
+          "col_count": 4
+        },
+        {
+          "line": 187,
+          "header": "| Métrica | Valor | Fuente |",
+          "col_count": 3
+        }
       ],
       "sections": [
-        { "level": 1, "title": "github-mcp-proxy — Runbook de Infraestructura", "anchor": "github-mcp-proxy--runbook-de-infraestructura", "line_start": 1, "line_end": 8 },
-        { "level": 2, "title": "1. Visión general", "anchor": "1-vision-general", "line_start": 9, "line_end": 47 },
-        { "level": 2, "title": "2. Recursos de Cloudflare", "anchor": "2-recursos-de-cloudflare", "line_start": 48, "line_end": 75 },
-        { "level": 2, "title": "3. Endpoints MCP (upstream)", "anchor": "3-endpoints-mcp-upstream", "line_start": 76, "line_end": 92 },
-        { "level": 2, "title": "4. Endpoints de edición de documentos (v4.0)", "anchor": "4-endpoints-de-edicion-de-documentos-v40", "line_start": 93, "line_end": 155 },
-        { "level": 2, "title": "5. _index.json — índice estructural automático", "anchor": "5-indexjson--indice-estructural-automatico", "line_start": 156, "line_end": 191 },
-        { "level": 2, "title": "6. OAuth — flujo completo", "anchor": "6-oauth--flujo-completo", "line_start": 192, "line_end": 235 },
-        { "level": 2, "title": "7. Observabilidad", "anchor": "7-observabilidad", "line_start": 236, "line_end": 275 },
-        { "level": 2, "title": "8. Gaps pendientes y plan de acción", "anchor": "8-gaps-pendientes-y-plan-de-accion", "line_start": 276, "line_end": 330 },
-        { "level": 2, "title": "9. Workflow operacional recomendado", "anchor": "9-workflow-operacional-recomendado", "line_start": 331, "line_end": 390 },
-        { "level": 2, "title": "10. Seguridad", "anchor": "10-seguridad", "line_start": 391, "line_end": 420 },
-        { "level": 2, "title": "11. Decisiones de diseño", "anchor": "11-decisiones-de-diseno", "line_start": 421, "line_end": 455 },
-        { "level": 2, "title": "12. Changelog", "anchor": "12-changelog", "line_start": 456, "line_end": 490 }
+        {
+          "level": 1,
+          "title": "github-mcp-proxy — Runbook de Infraestructura",
+          "anchor": "github-mcp-proxy--runbook-de-infraestructura",
+          "line_start": 1,
+          "line_end": 8
+        },
+        {
+          "level": 2,
+          "title": "1. Visión general",
+          "anchor": "1-vision-general",
+          "line_start": 9,
+          "line_end": 47
+        },
+        {
+          "level": 2,
+          "title": "2. Recursos de Cloudflare",
+          "anchor": "2-recursos-de-cloudflare",
+          "line_start": 48,
+          "line_end": 75
+        },
+        {
+          "level": 2,
+          "title": "3. Endpoints MCP (upstream)",
+          "anchor": "3-endpoints-mcp-upstream",
+          "line_start": 76,
+          "line_end": 92
+        },
+        {
+          "level": 2,
+          "title": "4. Endpoints de edición de documentos (v4.0)",
+          "anchor": "4-endpoints-de-edicion-de-documentos-v40",
+          "line_start": 93,
+          "line_end": 155
+        },
+        {
+          "level": 2,
+          "title": "5. _index.json — índice estructural automático",
+          "anchor": "5-indexjson--indice-estructural-automatico",
+          "line_start": 156,
+          "line_end": 191
+        },
+        {
+          "level": 2,
+          "title": "6. OAuth — flujo completo",
+          "anchor": "6-oauth--flujo-completo",
+          "line_start": 192,
+          "line_end": 235
+        },
+        {
+          "level": 2,
+          "title": "7. Observabilidad",
+          "anchor": "7-observabilidad",
+          "line_start": 236,
+          "line_end": 275
+        },
+        {
+          "level": 2,
+          "title": "8. Gaps pendientes y plan de acción",
+          "anchor": "8-gaps-pendientes-y-plan-de-accion",
+          "line_start": 276,
+          "line_end": 330
+        },
+        {
+          "level": 2,
+          "title": "9. Workflow operacional recomendado",
+          "anchor": "9-workflow-operacional-recomendado",
+          "line_start": 331,
+          "line_end": 390
+        },
+        {
+          "level": 2,
+          "title": "10. Seguridad",
+          "anchor": "10-seguridad",
+          "line_start": 391,
+          "line_end": 420
+        },
+        {
+          "level": 2,
+          "title": "11. Decisiones de diseño",
+          "anchor": "11-decisiones-de-diseno",
+          "line_start": 421,
+          "line_end": 455
+        },
+        {
+          "level": 2,
+          "title": "12. Changelog",
+          "anchor": "12-changelog",
+          "line_start": 456,
+          "line_end": 490
+        }
       ]
     },
     "docs/ops/test-complex.md": {
@@ -110,22 +350,98 @@
       "frontmatter": false,
       "code_blocks": 5,
       "tables": [
-        { "line": 24, "header": "| Worker | Versión | Estado | Última actualización |", "col_count": 4 },
-        { "line": 31, "header": "| Servicio | Requests | Errores | Wall P99 (ms) |", "col_count": 4 },
-        { "line": 38, "header": "| Endpoint | Versión | Descripción |", "col_count": 3 },
-        { "line": 77, "header": "| Test | Resultado | Notas |", "col_count": 3 }
+        {
+          "line": 24,
+          "header": "| Worker | Versión | Estado | Última actualización |",
+          "col_count": 4
+        },
+        {
+          "line": 31,
+          "header": "| Servicio | Requests | Errores | Wall P99 (ms) |",
+          "col_count": 4
+        },
+        {
+          "line": 38,
+          "header": "| Endpoint | Versión | Descripción |",
+          "col_count": 3
+        },
+        {
+          "line": 77,
+          "header": "| Test | Resultado | Notas |",
+          "col_count": 3
+        }
       ],
       "sections": [
-        { "level": 1, "title": "Documento de Test Complejo — v4.0.1", "anchor": "documento-de-test-complejo--v401", "line_start": 1, "line_end": 9 },
-        { "level": 2, "title": "Estado del sistema", "anchor": "estado-del-sistema", "line_start": 11, "line_end": 22 },
-        { "level": 2, "title": "Inventario de Workers", "anchor": "inventario-de-workers", "line_start": 23, "line_end": 29 },
-        { "level": 2, "title": "Métricas de uso reales (observabilidad 7d)", "anchor": "metricas-de-uso-reales-observabilidad-7d", "line_start": 31, "line_end": 36 },
-        { "level": 2, "title": "Endpoints del Worker", "anchor": "endpoints-del-worker", "line_start": 38, "line_end": 50 },
-        { "level": 2, "title": "Arquitectura", "anchor": "arquitectura", "line_start": 52, "line_end": 58 },
-        { "level": 2, "title": "Configuración de referencia", "anchor": "configuracion-de-referencia", "line_start": 60, "line_end": 74 },
-        { "level": 2, "title": "Tests pasados — stress test a fondo", "anchor": "tests-pasados--stress-test-a-fondo", "line_start": 76, "line_end": 90 },
-        { "level": 2, "title": "Gaps pendientes", "anchor": "gaps-pendientes", "line_start": 92, "line_end": 99 },
-        { "level": 2, "title": "Changelog", "anchor": "changelog", "line_start": 101, "line_end": 105 }
+        {
+          "level": 1,
+          "title": "Documento de Test Complejo — v4.0.1",
+          "anchor": "documento-de-test-complejo--v401",
+          "line_start": 1,
+          "line_end": 9
+        },
+        {
+          "level": 2,
+          "title": "Estado del sistema",
+          "anchor": "estado-del-sistema",
+          "line_start": 11,
+          "line_end": 22
+        },
+        {
+          "level": 2,
+          "title": "Inventario de Workers",
+          "anchor": "inventario-de-workers",
+          "line_start": 23,
+          "line_end": 29
+        },
+        {
+          "level": 2,
+          "title": "Métricas de uso reales (observabilidad 7d)",
+          "anchor": "metricas-de-uso-reales-observabilidad-7d",
+          "line_start": 31,
+          "line_end": 36
+        },
+        {
+          "level": 2,
+          "title": "Endpoints del Worker",
+          "anchor": "endpoints-del-worker",
+          "line_start": 38,
+          "line_end": 50
+        },
+        {
+          "level": 2,
+          "title": "Arquitectura",
+          "anchor": "arquitectura",
+          "line_start": 52,
+          "line_end": 58
+        },
+        {
+          "level": 2,
+          "title": "Configuración de referencia",
+          "anchor": "configuracion-de-referencia",
+          "line_start": 60,
+          "line_end": 74
+        },
+        {
+          "level": 2,
+          "title": "Tests pasados — stress test a fondo",
+          "anchor": "tests-pasados--stress-test-a-fondo",
+          "line_start": 76,
+          "line_end": 90
+        },
+        {
+          "level": 2,
+          "title": "Gaps pendientes",
+          "anchor": "gaps-pendientes",
+          "line_start": 92,
+          "line_end": 99
+        },
+        {
+          "level": 2,
+          "title": "Changelog",
+          "anchor": "changelog",
+          "line_start": 101,
+          "line_end": 105
+        }
       ]
     },
     "docs/ops/test-data.json": {
@@ -134,28 +450,71 @@
       "format": "json",
       "lines": 58,
       "updated_at": "2026-04-06T09:51:49Z",
-      "top_level_keys": ["version", "updated_at", "workers", "metrics", "config", "script_versions"],
+      "top_level_keys": [
+        "version",
+        "updated_at",
+        "workers",
+        "metrics",
+        "config",
+        "script_versions"
+      ],
       "is_array": false,
       "array_length": null,
       "notes": "v1.1 — shared-github-mcp-server-1 status=removed, script_versions map added, metrics from real observability"
     },
     "docs/ops/test-patch.md": {
-      "sha": "f4e78dbf26c343ed7e5f6da6eaf78de8598d0969",
-      "size": 698,
+      "sha": "0889c74c8508e8de32b51ba56d38fd4bdefa36e3",
+      "size": 1028,
       "format": "markdown",
-      "lines": 25,
-      "updated_at": "2026-04-06T09:51:49Z",
-      "frontmatter": false,
-      "code_blocks": 0,
-      "tables": [],
+      "lines": 35,
+      "updated_at": "2026-04-06T17:08:22.958Z",
       "sections": [
-        { "level": 1, "title": "Test doc — /github-patch, /github-append", "anchor": "test-doc--github-patch-github-append", "line_start": 1, "line_end": 8 },
-        { "level": 2, "title": "Estado actual", "anchor": "estado-actual", "line_start": 10, "line_end": 13 },
-        { "level": 2, "title": "Sección A", "anchor": "seccion-a", "line_start": 14, "line_end": 17 },
-        { "level": 2, "title": "Sección B", "anchor": "seccion-b", "line_start": 18, "line_end": 20 },
-        { "level": 2, "title": "Sección C — nueva (INSERT via /github-append)", "anchor": "seccion-c--nueva-insert-via-github-append", "line_start": 21, "line_end": 23 },
-        { "level": 2, "title": "Changelog", "anchor": "changelog", "line_start": 24, "line_end": 25 }
-      ]
+        {
+          "level": 1,
+          "title": "Test doc — /github-patch, /github-append",
+          "anchor": "test-doc-github-patch-github-append",
+          "line_start": 1,
+          "line_end": 35
+        },
+        {
+          "level": 2,
+          "title": "Estado actual",
+          "anchor": "estado-actual",
+          "line_start": 9,
+          "line_end": 13
+        },
+        {
+          "level": 2,
+          "title": "Sección A",
+          "anchor": "seccin-a",
+          "line_start": 14,
+          "line_end": 18
+        },
+        {
+          "level": 2,
+          "title": "Sección B",
+          "anchor": "seccin-b",
+          "line_start": 19,
+          "line_end": 22
+        },
+        {
+          "level": 2,
+          "title": "Sección C — nueva (INSERT via /github-append)",
+          "anchor": "seccin-c-nueva-insert-via-github-append",
+          "line_start": 23,
+          "line_end": 27
+        },
+        {
+          "level": 2,
+          "title": "Changelog",
+          "anchor": "changelog",
+          "line_start": 28,
+          "line_end": 35
+        }
+      ],
+      "tables": [],
+      "code_blocks": 0,
+      "frontmatter": false
     }
   }
 }

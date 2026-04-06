@@ -1,10 +1,10 @@
 {
   "version": "1.1",
-  "updated_at": "2026-04-06T23:30:00Z",
+  "updated_at": "2026-04-06T12:00:00Z",
   "workers": [
     {
       "name": "github-mcp-proxy",
-      "version": "4.0.1",
+      "version": "4.1.0",
       "status": "active",
       "endpoints": 20,
       "deployed_at": "2026-04-06",
@@ -31,7 +31,7 @@
   "metrics": {
     "total_requests_7d": 27494,
     "total_errors_7d": 0,
-    "error_rate": 0.0,
+    "error_rate": 0,
     "mcp_requests": 14,
     "token_refreshes": 2,
     "upstream_200": 12,
@@ -41,8 +41,12 @@
     "logpush_enabled": false,
     "logpush_bucket": "ops-logs",
     "traces_enabled": false,
-    "observability_sampling": 1.0,
-    "pending_actions": ["activate_logpush", "fix_read_org_scope", "add_tool_name_logging"]
+    "observability_sampling": 1,
+    "pending_actions": [
+      "activate_logpush",
+      "fix_read_org_scope",
+      "add_tool_name_logging"
+    ]
   },
   "script_versions": {
     "v4.0.1": "acd61173-defd-44a1-9bfa-5dae85671ecf",

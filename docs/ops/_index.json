@@ -1,6 +1,6 @@
 {
   "version": "1.1",
-  "last_updated": "2026-04-06T17:08:22.958Z",
+  "last_updated": "2026-04-06T17:08:35.810Z",
   "generated_by": "manual sync after stress test session — auto-updates via ctx.waitUntil after Worker writes",
   "stress_test_summary": {
     "date": "2026-04-06",
@@ -445,11 +445,11 @@
       ]
     },
     "docs/ops/test-data.json": {
-      "sha": "4833ca98fb5f3cb3e00b7a10f9f8622147b81cd2",
-      "size": 1312,
+      "sha": "7621764af77f16ef3d643e4acd5c0fd5397f8314",
+      "size": 1433,
       "format": "json",
-      "lines": 58,
-      "updated_at": "2026-04-06T09:51:49Z",
+      "lines": 56,
+      "updated_at": "2026-04-06T17:08:35.810Z",
       "top_level_keys": [
         "version",
         "updated_at",
@@ -458,9 +458,7 @@
         "config",
         "script_versions"
       ],
-      "is_array": false,
-      "array_length": null,
-      "notes": "v1.1 — shared-github-mcp-server-1 status=removed, script_versions map added, metrics from real observability"
+      "is_array": false
     },
     "docs/ops/test-patch.md": {
       "sha": "0889c74c8508e8de32b51ba56d38fd4bdefa36e3",

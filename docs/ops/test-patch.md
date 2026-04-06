@@ -9,7 +9,7 @@ Archivo de test para `/github-patch`, `/github-append`, `/github-read-section`.
 ## Estado actual
 
 - v4.0.1 activo — tokenizePath bug corregido
-- 0 errores en 7 días de observabilidad
+- 0 errores — test v4.1.0 verificado
 
 ## Sección A
 
